@@ -1,1 +1,2 @@
-./local-db/
+./local-db/*
+./local-db.env
