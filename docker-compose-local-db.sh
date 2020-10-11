@@ -1,15 +1,14 @@
 #!/bin/bash
 
 set -e
-set -u
 
 function create_user() {
 	local owner=$(echo $1 | tr ',' ' ' | awk  '{print $1}')
 	local pass=$(echo $1 | tr ',' ' ' | awk  '{print $2}')
   echo
 	echo "Creating user '$owner' with password $pass"
-	psql -v ON_ERROR_STOP=1 --username $POSTGRES_USER <<-EOSQL
-	    CREATE USER $owner WITH PASSWORD '$pass';
+	psql -v ON_ERROR_STOP=1 --username $POSTGRES_USER --dbname "$POSTGRES_DB" <<-EOSQL
+		CREATE USER $owner WITH SUPERUSER PASSWORD '$pass';
 EOSQL
 }
 

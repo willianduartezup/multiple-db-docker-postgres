@@ -1,4 +1,4 @@
-version: '3.1'
+version: '3'
 services: 
   
   postgres:
@@ -12,6 +12,52 @@ services:
     volumes:
       - ./docker-compose-local-db.sh:/docker-entrypoint-initdb.d/docker-compose-local-db.sh               
       - ./local-db/data:/var/lib/postgresql/data
+  
+  pgadmin:
+    container_name: pgadmin
+    image: dpage/pgadmin4
+    environment:
+      - PGADMIN_DEFAULT_EMAIL=willian.duarte@zup.com.br
+      - PGADMIN_DEFAULT_PASSWORD=clarobi@zup
+    volumes:
+      - pgadmin:/root/.pgadmin
+    ports:
+      - "5050:80"
+    networks:
+      - postgres
+    restart: unless-stopped
+  
+  keycloak:
+    image: quay.io/keycloak/keycloak:latest
+    environment:
+      DB_VENDOR: POSTGRES
+      DB_ADDR: postgres
+      DB_DATABASE: keycloak
+      DB_USER: keycloak
+      DB_SCHEMA: public
+      DB_PASSWORD: k3ycl01k 
+      KEYCLOAK_USER: admin
+      KEYCLOAK_PASSWORD: p455w0rd
+      # Uncomment the line below if you want to specify JDBC parameters. The parameter below is just an example, and it shouldn't be used in production without knowledge. It is highly recommended that you read the PostgreSQL JDBC driver documentation in order to use it.
+      #JDBC_PARAMS: "ssl=true"
+    ports:
+      - 8480:8480
+    restart: unless-stopped
+    depends_on:
+      - "postgres"
+      #  condition: service_started
 
+#    volumes:
+#      - keycloak_vlm:/opt/jboss/keycloak/standalone/log:rw
+ 
+#  depends_on:
+#    postgres:
+#      condition: service_started
+
+networks:
+  postgres:
+    driver: bridge
+                     
 volumes: 
   local-db: {}
+  pgadmin: {}
